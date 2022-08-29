@@ -17,7 +17,7 @@ def save_image(masked, out_fn):
 
 
 def main(raw_args=None):
-    assets_dir = "./assets"
+    assets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./assets")
     dlib_model_dir = os.path.join(assets_dir, "dlib")
     inputs_dir = os.path.join(assets_dir, "inputs")
     output_dir = os.path.join(assets_dir, "output")

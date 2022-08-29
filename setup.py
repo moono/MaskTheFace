@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="mask_the_face",
-    version="0.0.1",
+    version="0.0.2",
     author="Aqeel Anwar",
     author_email="malikaqeelanwar@yahoo.com",
     description="Synthesize mask on face images",

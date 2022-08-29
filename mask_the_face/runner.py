@@ -1,5 +1,4 @@
 import os
-import copy
 import random
 import dlib
 import cv2
@@ -20,41 +19,27 @@ from mask_the_face.utils.aux_functions import (
 
 
 class Runner(object):
-    def __init__(
-        self,
-        dlib_model_dir: str,
-        mask_type: str = "surgical",
-        pattern: str = "",
-        pattern_weight: float = 0.5,
-        color: str = "#FFFFFF",
-        color_weight: float = 0.5,
-        code: str = "",
-    ) -> None:
+    def __init__(self, dlib_model_dir: str) -> None:
         # check necessary input files
-        path_to_dlib_model = os.path.join(dlib_model_dir, "shape_predictor_68_face_landmarks.dat")
+        path_to_dlib_model = os.path.join(
+            dlib_model_dir, "shape_predictor_68_face_landmarks.dat"
+        )
         if not os.path.exists(path_to_dlib_model):
             raise ValueError("dlib model file does not exists!!!")
 
-        self.args = self._gen_args(
-            path_to_dlib_model,
-            mask_type,
-            pattern,
-            pattern_weight,
-            color,
-            color_weight,
-            code,
-        )
+        # Set up dlib face detector and predictor
+        self.detector = dlib.get_frontal_face_detector()
+        self.predictor = dlib.shape_predictor(path_to_dlib_model)
         return
 
     def _gen_args(
         self,
-        path_to_dlib_model: str,
-        mask_type: str = "surgical",
-        pattern: str = "",
-        pattern_weight: float = 0.5,
-        color: str = "#FFFFFF",
-        color_weight: float = 0.5,
-        code: str = "",
+        mask_type: str,
+        pattern: str,
+        pattern_weight: float,
+        color: str,
+        color_weight: float,
+        code: str,
     ) -> Namespace:
         # set input arguments (match original module's input)
         args = Namespace()
@@ -71,8 +56,8 @@ class Runner(object):
         args.write_path = "_masked"
 
         # Set up dlib face detector and predictor
-        args.detector = dlib.get_frontal_face_detector()
-        args.predictor = dlib.shape_predictor(path_to_dlib_model)
+        args.detector = self.detector
+        args.predictor = self.predictor
 
         # Extract data from code
         mask_code = "".join(args.code.split()).split(",")
@@ -97,7 +82,21 @@ class Runner(object):
         return args
 
     # return: masked image list (BGR format) per 'mask_type'
-    def run(self, image_path: Union[str, bytes, Image.Image]):
+    def run(
+        self,
+        image_path: Union[str, bytes, Image.Image],
+        mask_type: str = "surgical",
+        pattern: str = "",
+        pattern_weight: float = 0.5,
+        color: str = "#FFFFFF",
+        color_weight: float = 0.5,
+        code: str = "",
+    ):
+        # setup args
+        args = self._gen_args(
+            mask_type, pattern, pattern_weight, color, color_weight, code
+        )
+
         # Read the image
         if isinstance(image_path, str):
             image = cv2.imread(image_path)
@@ -108,8 +107,8 @@ class Runner(object):
         else:
             raise ValueError("Bad input")
 
-        # setup args
-        args = copy.deepcopy(self.args)
+        # # setup args
+        # args = copy.deepcopy(self.args)
 
         original_image = image.copy()
         # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
