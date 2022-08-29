@@ -2,6 +2,8 @@
 # Created: 9/20/2019, 12:43 PM
 # Email: aqeel.anwar@gatech.edu
 
+import os
+
 from configparser import ConfigParser
 from dotmap import DotMap
 
@@ -22,7 +24,11 @@ def ConvertIfStringIsInt(input_string):
         return input_string
 
 
-def read_cfg(config_filename="masks/masks.cfg", mask_type="surgical", verbose=False):
+def read_cfg(mask_type="surgical", verbose=False):
+    # fix path
+    module_base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+    config_filename = os.path.join(module_base_dir, "masks", "masks.cfg")
+    
     parser = ConfigParser()
     parser.optionxform = str
     parser.read(config_filename)
@@ -42,7 +48,9 @@ def read_cfg(config_filename="masks/masks.cfg", mask_type="surgical", verbose=Fa
         if name != "template":
             cfg[name] = tuple(int(s) for s in value.split(","))
         else:
-            cfg[name] = value
+            # set proper path
+            cfg[name] = os.path.join(module_base_dir, value)
+            # cfg[name] = value
         spaces = " " * (30 - len(name))
         if verbose:
             print(name + ":" + spaces + str(cfg[name]))
