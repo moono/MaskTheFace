@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 from argparse import Namespace
-from typing import Union
+from typing import List, Tuple, Union
 from imutils import face_utils
 from PIL import Image
 
@@ -27,7 +27,7 @@ class Runner(object):
         if not os.path.exists(path_to_dlib_model):
             raise ValueError("dlib model file does not exists!!!")
 
-        # Set up dlib face detector and predictor
+        # Setup dlib face detector and predictor
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor(path_to_dlib_model)
         return
@@ -91,7 +91,7 @@ class Runner(object):
         color: str = "#FFFFFF",
         color_weight: float = 0.5,
         code: str = "",
-    ):
+    ) -> Tuple[List[np.ndarray], List[str], List[np.ndarray], np.ndarray]:
         # setup args
         args = self._gen_args(
             mask_type, pattern, pattern_weight, color, color_weight, code
@@ -180,3 +180,9 @@ class Runner(object):
                 cc = 1
 
         return masked_images, mask, mask_binary_array, original_image
+
+    def postprocess(self, masked_images: List[np.ndarray]) -> List[Image.Image]:
+        return [
+            Image.fromarray(cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB))
+            for bgr_image in masked_images
+        ]

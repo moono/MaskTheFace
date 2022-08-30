@@ -1,5 +1,5 @@
-# Mask The Face (installable)
+# Mask The Face (Module)
 * Just wrapping [MaskTheFace](https://github.com/aqeelanwar/MaskTheFace)
   * Installable 
     - `pip git+https://github.com/moono/MaskTheFace`
-  * Accept image as variable (`bytes`) for futher processing
+  * Accepts image as variable for futher processing

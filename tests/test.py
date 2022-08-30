@@ -1,6 +1,5 @@
 import os
 import glob
-import cv2
 
 from PIL import Image
 from mask_the_face.runner import Runner
@@ -10,9 +9,7 @@ def save_image(masked, out_fn):
     if len(masked) == 0:
         print("No face detected ...")
         return
-    bgr_image = masked[0]
-    rgb_image = Image.fromarray(cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB))
-    rgb_image.save(out_fn)
+    masked[0].save(out_fn)
     return
 
 
@@ -37,16 +34,19 @@ def main(raw_args=None):
 
         # 1. file
         masked1, _, __, ___ = runner.run(fn)
+        masked1 = runner.postprocess(masked1)
         save_image(masked1, out_fn1)
 
         # 2. bytes
         with open(fn, "rb") as f:
             image_bytes = f.read()
         masked2, _, __, ___ = runner.run(image_bytes)
+        masked2 = runner.postprocess(masked2)
         save_image(masked2, out_fn2)
 
         # 3. pillow
         masked3, _, __, ___ = runner.run(Image.open(fn).convert("RGB"))
+        masked3 = runner.postprocess(masked3)
         save_image(masked3, out_fn3)
 
     return
